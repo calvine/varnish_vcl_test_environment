@@ -1,0 +1,30 @@
+version: '3.4'
+services: 
+  app:
+    build: 
+      context: ./app
+      dockerfile: dockerfile
+    networks:
+      - default
+    environment:
+      PORT: 4503
+    expose:
+      - 4503
+  cache:
+    build:
+      context: ./varnish
+      dockerfile: dockerfile
+    environment: 
+      BACKEND_PORT: 4503
+      BACKEND_SERVER: app
+    networks: 
+      - default
+    links:
+      - app
+    ports:
+      - target: 80
+        published: 8085
+        protocol: tcp
+        mode: host
+networks:
+  default:
