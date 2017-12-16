@@ -8,8 +8,6 @@ services:
       - default
     environment:
       PORT: 4503
-    expose:
-      - 4503
   cache:
     build:
       context: ./varnish

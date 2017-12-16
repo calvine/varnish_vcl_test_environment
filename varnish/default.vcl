@@ -1,4 +1,4 @@
-# vcl 4.0;
+# import std;
 
 backend default {
   .host = "app";
@@ -22,6 +22,8 @@ sub vcl_recv {
     
     # Use the backend we set up above to answer the request if it's not cached.
     set req.backend = default;
+
+    set req.http.X-Varnish-XID = req.xid;
     
     # Pass the request along to lookup to see if it's in the cache.    
     return(lookup);
@@ -48,6 +50,18 @@ sub vcl_hit {
     # which will deliver a result from the cache.
     return(deliver);
 }
+
+sub vcl_hash {
+  # std.syslog(0, "vcl_hash called!");
+  #if unspecified fall back to normal
+  {
+    set req.hash += req.url;
+    set req.hash += req.http.host;
+    # set req.hash += req.xid;
+    log client.ip;
+    return(hash);
+  }
+}
 /*
 *
 * This is the subroutine which will fetch a response from the backend.
@@ -61,7 +75,7 @@ sub vcl_fetch {
 
     # Indicate that this response is cacheable. This is important.
     set beresp.http.X-Cacheable = "YES";
-    
+    set req.http.X-Varnish-XID = req.xid;
     # Some backends *cough* Django *cough* will assign a Vary header for
     # each User-Agent which visits the site. Varnish will store a separate
     # copy of the page in the cache for each instance of the Vary header --
@@ -78,7 +92,6 @@ sub vcl_fetch {
 *
 */
 sub vcl_deliver {
-    
     # Nothing fancy. Just deliver the goods.
     # Note: Both cache hits and cache misses will use this subroutine.
     return(deliver);

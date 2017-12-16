@@ -10,7 +10,7 @@ RUN wget --no-check-certificate https://github.com/varnish/Varnish-Cache/archive
 
 WORKDIR /tmp/Varnish-Cache-varnish-2.1.5
 
-RUN apt-get install -y build-essential automake libtool pkg-config libpcre3 libpcre3-dev python-docutils
+RUN apt-get install -y build-essential automake libtool pkg-config libpcre3 libpcre3-dev python-docutils nano
 
 RUN ./autogen.sh
 RUN ./configure
@@ -18,6 +18,9 @@ RUN make && make install
 RUN ldconfig
 
 COPY ./default.vcl .
+COPY ./check_vcl.sh .
+
+RUN chmod +x ./check_vcl.sh
 
 ENV VCL_CONFIG /tmp/Varnish-Cache-varnish-2.1.5/default.vcl
 ENV CACHE_SIZE 64m
