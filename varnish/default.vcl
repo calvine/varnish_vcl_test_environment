@@ -23,6 +23,8 @@ sub vcl_recv {
     # Use the backend we set up above to answer the request if it's not cached.
     set req.backend = default;
 
+    # set req.grace = 15m;
+
     set req.http.X-Varnish-XID = req.xid;
     
     # Pass the request along to lookup to see if it's in the cache.    
@@ -40,7 +42,7 @@ sub vcl_miss {
     return(fetch);
 }
 /*
-*
+*.
 * Now, let's set up a subroutine to deal with cache hits.
 *
 */
@@ -48,6 +50,7 @@ sub vcl_hit {
     
     # Again, nothing fancy. Just pass the request along to the subroutine
     # which will deliver a result from the cache.
+    log obj.ttl;
     return(deliver);
 }
 
@@ -71,7 +74,17 @@ sub vcl_hash {
 sub vcl_fetch {
 
     # Get the response. Set the cache lifetime of the response to 1 hour.
-    set beresp.ttl = 1h;
+    if (beresp.status > 401) {
+      log "beresp.status:";
+      log beresp.status;
+      log "engaging saint mode!";
+      set beresp.saintmode = 10s;
+      restart;
+      # log obj.status;
+    }
+    set beresp.ttl = 15s;
+
+    # set beresp.grace = 30m;
 
     # Indicate that this response is cacheable. This is important.
     set beresp.http.X-Cacheable = "YES";
