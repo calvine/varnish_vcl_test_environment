@@ -4,6 +4,8 @@ const server = new HAPI.Server({
     host: process.env.HOST
 });
 
+let count = 0;
+
 server.route({
     method: 'GET',
     path: '/',
@@ -13,6 +15,21 @@ server.route({
         };
     }
 });
+
+server.route({
+    method: 'GET',
+    path: '/works_every_5th_time',
+    handler: (request, reply) => {
+        if((count++ % 5) === 0) {
+            return {
+                id: request.info.id,
+                count: count - 1,
+            }
+        } else {
+            throw `${count-1} % 5 !== 0`;
+        }
+    }
+})
 
 server.start()
     .then((val) => {
