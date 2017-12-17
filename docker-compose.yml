@@ -12,16 +12,13 @@ services:
     build:
       context: ./varnish
       dockerfile: dockerfile
-    environment: 
-      BACKEND_PORT: 4503
-      BACKEND_SERVER: app
     networks: 
       - default
     links:
       - app
     ports:
       - target: 80
-        published: 8085
+        published: 8080
         protocol: tcp
         mode: host
 networks:
