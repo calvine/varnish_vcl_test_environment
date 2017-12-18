@@ -18,6 +18,14 @@ server.route({
 
 server.route({
     method: 'GET',
+    path: '/never_works',
+    handler: (request, reply) => {
+        throw 'This end point should never work!';
+    }
+});
+
+server.route({
+    method: 'GET',
     path: '/works_every_5th_time',
     handler: (request, reply) => {
         if((count++ % 5) === 0) {
@@ -29,7 +37,7 @@ server.route({
             throw `${count-1} % 5 !== 0`;
         }
     }
-})
+});
 
 server.start()
     .then((val) => {
