@@ -1,8 +1,10 @@
 FROM ubuntu:12.04.5
 
+ARG vclfile=./vcls/default.vcl
+
 RUN apt-get update
-RUN apt-get -y upgrade
-RUN apt-get install -y wget
+
+RUN apt-get install -y build-essential automake libtool pkg-config libpcre3 libpcre3-dev python-docutils nano wget
 
 WORKDIR /tmp
 
@@ -10,20 +12,20 @@ RUN wget --no-check-certificate https://github.com/varnish/Varnish-Cache/archive
 
 WORKDIR /tmp/Varnish-Cache-varnish-2.1.5
 
-RUN apt-get install -y build-essential automake libtool pkg-config libpcre3 libpcre3-dev python-docutils nano
-
 RUN ./autogen.sh
 RUN ./configure
 RUN make && make install
 RUN ldconfig
 
-COPY ./default.vcl .
 COPY ./check_vcl.sh .
+# COPY ./vcls ./vcls
 
 RUN chmod +x ./check_vcl.sh
 
-ENV VCL_CONFIG /tmp/Varnish-Cache-varnish-2.1.5/default.vcl
+# ENV VCL_CONFIG /tmp/Varnish-Cache-varnish-2.1.5/vcls/default.vcl
 ENV CACHE_SIZE 64m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 -a 0.0.0.0:80
 
-CMD varnishd -F -f $VCL_CONFIG -s malloc,$CACHE_SIZE $VARNISHD_PARAMS
+RUN echo "varnishd -F -f $vclfile -s malloc,$CACHE_SIZE $VARNISHD_PARAMS"
+
+CMD varnishd -F -f ./vcls/default.vcl -s malloc,$CACHE_SIZE $VARNISHD_PARAMS

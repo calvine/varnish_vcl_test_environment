@@ -2,7 +2,7 @@
 
 backend default {
   .host = "app";
-  .port = "4503";
+  .port = "4000";
 }
 
 # sub vcl_recv {
@@ -23,6 +23,11 @@ sub vcl_recv {
     # Use the backend we set up above to answer the request if it's not cached.
     set req.backend = default;
 
+    if (req.request == "PURGE") {
+        log "purging request url";
+        purge_url(req.url);
+        error 200 "purged!";
+    }
     # set req.grace = 15m;
 
     set req.http.X-Varnish-XID = req.xid;
@@ -55,13 +60,24 @@ sub vcl_hit {
 }
 
 sub vcl_hash {
-  # std.syslog(0, "vcl_hash called!");
-  #if unspecified fall back to normal
+  
+#--FASTLY HASH BEGIN
+# support purge all
+  set req.hash += "#####GENERATION#####";
+#--FASTLY HASH END
   {
     set req.hash += req.url;
     set req.hash += req.http.host;
-    # set req.hash += req.xid;
-    log client.ip;
+    set req.hash += req.http.cnn-platform;
+    set req.hash += req.http.cnn-app-name;
+    set req.hash += req.http.cnn-app-version;
+    set req.hash += req.http.cnn-location;
+    set req.hash += req.http.cnn-request-origin;
+    set req.hash += req.http.cnn-viewmode;
+    set req.hash += req.http.Authorization;
+    set req.hash += req.http.origin;
+    set req.hash += req.http.accept-encoding;
+    set req.hash += req.http.Accept-Encoding;
     return(hash);
   }
 }
@@ -82,7 +98,7 @@ sub vcl_fetch {
       restart;
       # log obj.status;
     }
-    set beresp.ttl = 15s;
+    set beresp.ttl = 30m;
 
     # set beresp.grace = 30m;
 
