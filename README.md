@@ -1,10 +1,10 @@
 # This is a simple docker-compose based VCL test environment
 
-## The Varnish version used in this is 2.1.5 which is the version most compatible with fastly's custom version of Varnish.
+The Varnish version used in this is 2.1.5 which is the version most compatible with fastly's custom version of Varnish.
 
-### This is just using docker-compose, so you can easily operate it that way, or you can use the bash scripts I have included.
+This is just using docker-compose, so you can easily operate it that way, or you can use the bash scripts I have included.
 
-#### Note: The vcls folder in the varnish folder is mounted as a volume to the varnish container, so you can modify the files and the changes are reflected in the varnish container.
+Note: The vcls folder in the varnish folder is mounted as a volume to the varnish container, so you can modify the files and the changes are reflected in the varnish container.
 
 ```bash
 ./restart_system.sh # This script shuts the docker-compose containers down and forces the rebuild of the containers, and the starts up the all of the docker-compose containers.

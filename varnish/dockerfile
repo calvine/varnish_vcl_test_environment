@@ -1,6 +1,6 @@
 FROM ubuntu:12.04.5
 
-ARG vclfile=./vcls/default.vcl
+ARG VCLFILE=./vcls/default.vcl
 
 RUN apt-get update
 
@@ -23,9 +23,10 @@ COPY ./check_vcl.sh .
 RUN chmod +x ./check_vcl.sh
 
 # ENV VCL_CONFIG /tmp/Varnish-Cache-varnish-2.1.5/vcls/default.vcl
+ENV DEFAULT_VCL_FILE ${VCLFILE}
 ENV CACHE_SIZE 64m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 -a 0.0.0.0:80
 
 RUN echo "varnishd -F -f $vclfile -s malloc,$CACHE_SIZE $VARNISHD_PARAMS"
 
-CMD varnishd -F -f ./vcls/default.vcl -s malloc,$CACHE_SIZE $VARNISHD_PARAMS
+CMD varnishd -F -f $DEFAULT_VCL_FILE -s malloc,$CACHE_SIZE $VARNISHD_PARAMS

@@ -14,7 +14,7 @@ services:
       context: ./varnish
       dockerfile: dockerfile
       args: 
-        vclfile: ./vcls/default.vcl
+        VCLFILE: ./vcls/default.vcl
     networks: 
       - default
     links:
