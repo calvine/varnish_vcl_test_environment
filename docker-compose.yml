@@ -2,19 +2,16 @@ version: '3.4'
 services: 
   app:
     build: 
-      context: ./testapps/cnn-cerebro-api
+      context: ./app # You can change this to any app you copy into this project and run the cache against it specifically.
       dockerfile: dockerfile
     networks:
       - default
-    environment:
-      ENVIRONMENT: dev
-      LOGZIO_TOKEN: YBJpcTjcrpLOBpsmGxunSyBdQMIBAfwC
   cache:
     build:
       context: ./varnish
       dockerfile: dockerfile
       args: 
-        VCLFILE: ./vcls/default.vcl
+        VCLFILE: ./vcls/long_lived_cache.vcl
     networks: 
       - default
     links:
